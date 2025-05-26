@@ -28,7 +28,7 @@ jobs:
         pyinstaller --onefile --windowed --hidden-import=xlsxwriter --hidden-import=PyQt5.QtWebEngineWidgets --name FB_Group_Exporter main.py
     
     - name: Upload Windows artifact
-      uses: actions/upload-artifact@v2 # Используем v2 для совместимости
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # Указываем конкретный SHA для v2
       with:
         name: FB_Group_Exporter_Windows
         path: dist/FB_Group_Exporter.exe
@@ -56,9 +56,10 @@ jobs:
         mkdir -p dist/FB_Group_Exporter.app/Contents/MacOS
         mv dist/FB_Group_Exporter dist/FB_Group_Exporter.app/Contents/MacOS/FB_Group_Exporter
         chmod +x dist/FB_Group_Exporter.app/Contents/MacOS/FB_Group_Exporter
+        codesign --force --deep --sign - dist/FB_Group_Exporter.app
     
     - name: Upload Mac artifact
-      uses: actions/upload-artifact@v2 # Используем v2 для совместимости
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # Указываем конкретный SHA для v2
       with:
         name: FB_Group_Exporter_Mac
         path: dist/FB_Group_Exporter.app
