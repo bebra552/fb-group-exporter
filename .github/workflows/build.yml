@@ -1,0 +1,62 @@
+name: Build FB Group Exporter
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyQt5 PyQtWebEngine pyinstaller xlsxwriter
+    
+    - name: Build Windows executable
+      run: |
+        pyinstaller --onefile --windowed --hidden-import=xlsxwriter --hidden-import=PyQt5.QtWebEngineWidgets --name FB_Group_Exporter main.py
+    
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: FB_Group_Exporter_Windows
+        path: dist/FB_Group_Exporter.exe
+
+  build-mac:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyQt5 PyQtWebEngine pyinstaller xlsxwriter
+    
+    - name: Build Mac executable
+      run: |
+        pyinstaller --onefile --windowed --hidden-import=xlsxwriter --hidden-import=PyQt5.QtWebEngineWidgets --name FB_Group_Exporter main.py
+        mkdir -p dist/FB_Group_Exporter.app/Contents/MacOS
+        mv dist/FB_Group_Exporter dist/FB_Group_Exporter.app/Contents/MacOS/FB_Group_Exporter
+        chmod +x dist/FB_Group_Exporter.app/Contents/MacOS/FB_Group_Exporter
+    
+    - name: Upload Mac artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: FB_Group_Exporter_Mac
+        path: dist/FB_Group_Exporter.app
