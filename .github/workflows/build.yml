@@ -11,10 +11,10 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2 # Используем v2 для совместимости с runner 2.324.0
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # SHA для v2
     
     - name: Set up Python
-      uses: actions/setup-python@v2 # Используем v2 для совместимости
+      uses: actions/setup-python@65d7f2d078d27f32f6f6967593aecd8d73086a47 # SHA для v2
       with:
         python-version: '3.13'
     
@@ -28,7 +28,7 @@ jobs:
         pyinstaller --onefile --windowed --hidden-import=xlsxwriter --hidden-import=PyQt5.QtWebEngineWidgets --name FB_Group_Exporter main.py
     
     - name: Upload Windows artifact
-      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # Указываем конкретный SHA для v2
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # SHA для v2
       with:
         name: FB_Group_Exporter_Windows
         path: dist/FB_Group_Exporter.exe
@@ -38,10 +38,10 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2 # Используем v2 для совместимости
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # SHA для v2
     
     - name: Set up Python
-      uses: actions/setup-python@v2 # Используем v2 для совместимости
+      uses: actions/setup-python@65d7f2d078d27f32f6f6967593aecd8d73086a47 # SHA для v2
       with:
         python-version: '3.13'
     
@@ -59,7 +59,7 @@ jobs:
         codesign --force --deep --sign - dist/FB_Group_Exporter.app
     
     - name: Upload Mac artifact
-      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # Указываем конкретный SHA для v2
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # SHA для v2
       with:
         name: FB_Group_Exporter_Mac
         path: dist/FB_Group_Exporter.app
