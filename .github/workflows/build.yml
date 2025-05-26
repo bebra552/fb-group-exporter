@@ -10,10 +10,11 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3 # Downgraded to v3 for stability with runner 2.324.0
     
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4 # Use v4 for compatibility
       with:
         python-version: '3.13'
     
@@ -27,7 +28,7 @@ jobs:
         pyinstaller --onefile --windowed --hidden-import=xlsxwriter --hidden-import=PyQt5.QtWebEngineWidgets --name FB_Group_Exporter main.py
     
     - name: Upload Windows artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3 # Use v3 for compatibility
       with:
         name: FB_Group_Exporter_Windows
         path: dist/FB_Group_Exporter.exe
@@ -36,10 +37,11 @@ jobs:
     runs-on: macos-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3 # Downgraded to v3 for stability
     
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4 # Use v4 for compatibility
       with:
         python-version: '3.13'
     
@@ -56,7 +58,7 @@ jobs:
         chmod +x dist/FB_Group_Exporter.app/Contents/MacOS/FB_Group_Exporter
     
     - name: Upload Mac artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3 # Use v3 for compatibility
       with:
         name: FB_Group_Exporter_Mac
         path: dist/FB_Group_Exporter.app
