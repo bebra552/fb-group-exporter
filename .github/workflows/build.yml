@@ -2,9 +2,7 @@ name: Build FB Group Exporter
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -12,183 +10,52 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Set up Python
+    - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
-        python-version: '3.13'
+        python-version: '3.12'
     
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install PyQt5==5.15.10 PyQtWebEngine==5.15.6 pyinstaller==6.3.0 xlsxwriter==3.1.9
+        pip install PyQt5 PyQtWebEngine pyinstaller xlsxwriter
     
     - name: Build Windows executable
       run: |
-        pyinstaller --onefile --windowed ^
-          --hidden-import=xlsxwriter ^
-          --hidden-import=PyQt5.QtWebEngineWidgets ^
-          --hidden-import=PyQt5.QtWebEngineCore ^
-          --hidden-import=PyQt5.QtCore ^
-          --hidden-import=PyQt5.QtGui ^
-          --hidden-import=PyQt5.QtWidgets ^
-          --add-data "C:\hostedtoolcache\windows\Python\3.11.*\x64\Lib\site-packages\PyQt5\Qt5\bin\*;PyQt5/Qt5/bin/" ^
-          --name FB_Group_Exporter ^
-          main.py
+        pyinstaller --onefile --windowed --name="FB_Group_Exporter" main.py
     
-    - name: Upload Windows artifact
+    - name: Upload Windows executable
       uses: actions/upload-artifact@v4
       with:
         name: FB_Group_Exporter_Windows
         path: dist/FB_Group_Exporter.exe
 
-  build-mac:
+  build-macos:
     runs-on: macos-latest
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Set up Python
+    - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
-        python-version: '3.13'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install PyQt5==5.15.10 PyQtWebEngine==5.15.6 pyinstaller==6.3.0 xlsxwriter==3.1.9
-    
-    - name: Build Mac executable
-      run: |
-        pyinstaller --onefile --windowed \
-          --hidden-import=xlsxwriter \
-          --hidden-import=PyQt5.QtWebEngineWidgets \
-          --hidden-import=PyQt5.QtWebEngineCore \
-          --hidden-import=PyQt5.QtCore \
-          --hidden-import=PyQt5.QtGui \
-          --hidden-import=PyQt5.QtWidgets \
-          --name FB_Group_Exporter \
-          main.py
-    
-    - name: Sign Mac executable (optional)
-      run: |
-        if [ -f "dist/FB_Group_Exporter" ]; then
-          codesign --force --deep --sign - dist/FB_Group_Exporter || echo "Code signing failed, but continuing..."
-        fi
-    
-    - name: Upload Mac artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: FB_Group_Exporter_Mac
-        path: dist/FB_Group_Exporter
-
-  build-linux:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13'
-    
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          qt5-default \
-          qtwebengine5-dev \
-          libqt5webenginewidgets5 \
-          libqt5webenginecore5 \
-          libqt5webengine5 \
-          xvfb
+        python-version: '3.12'
     
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install PyQt5==5.15.10 PyQtWebEngine==5.15.6 pyinstaller==6.3.0 xlsxwriter==3.1.9
+        pip install PyQt5 PyQtWebEngine pyinstaller xlsxwriter
     
-    - name: Build Linux executable
+    - name: Build macOS executable
       run: |
-        pyinstaller --onefile \
-          --hidden-import=xlsxwriter \
-          --hidden-import=PyQt5.QtWebEngineWidgets \
-          --hidden-import=PyQt5.QtWebEngineCore \
-          --hidden-import=PyQt5.QtCore \
-          --hidden-import=PyQt5.QtGui \
-          --hidden-import=PyQt5.QtWidgets \
-          --name FB_Group_Exporter \
-          main.py
+        pyinstaller --onefile --windowed --name="FB_Group_Exporter" main.py
     
-    - name: Upload Linux artifact
+    - name: Upload macOS executable
       uses: actions/upload-artifact@v4
       with:
-        name: FB_Group_Exporter_Linux
+        name: FB_Group_Exporter_macOS
         path: dist/FB_Group_Exporter
-
-  create-release:
-    needs: [build-windows, build-mac, build-linux]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    
-    steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-    
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.run_number }}
-        release_name: FB Group Exporter v${{ github.run_number }}
-        body: |
-          Автоматически созданный релиз FB Group Exporter
-          
-          ## Изменения
-          - Сборка для Windows, macOS и Linux
-          - Встроенная поддержка экспорта в Excel
-          
-          ## Как использовать
-          1. Скачайте версию для вашей ОС
-          2. Запустите исполняемый файл
-          3. Введите URL группы Facebook
-          4. Следуйте инструкциям в приложении
-        draft: false
-        prerelease: false
-    
-    - name: Upload Windows Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: FB_Group_Exporter_Windows/FB_Group_Exporter.exe
-        asset_name: FB_Group_Exporter_Windows.exe
-        asset_content_type: application/octet-stream
-    
-    - name: Upload Mac Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: FB_Group_Exporter_Mac/FB_Group_Exporter
-        asset_name: FB_Group_Exporter_Mac
-        asset_content_type: application/octet-stream
-    
-    - name: Upload Linux Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: FB_Group_Exporter_Linux/FB_Group_Exporter
-        asset_name: FB_Group_Exporter_Linux
-        asset_content_type: application/octet-stream
